@@ -5,7 +5,7 @@ import numpy as np
 from matplotlib.colors import colorConverter
 import matplotlib as mpl
 
-# Example data
+# Obtain the matrix of distances
 
 def get_distancem(protein_name):
 	d = 'pdb_files'
@@ -36,20 +36,34 @@ def get_distancem(protein_name):
 
 
 distancem = get_distancem("2cd0")
+contact_map = distancem >15  
+
+# Obtaiin the matrix pf MI
+
+fh2=open('MI.txt','r')
+
+
+mi = list()
+for line in fh2:
+	m = list()
+	line = line.strip()
+	fields = line.split(' ')
+	for f in fields:
+		m.append(float(f))
+	mi.append(m)
+mi_mat=np.asarray(mi)
+# print mi_mat
+
+mi_mat2 = mi_mat > 0
 
 
 ############# http://stackoverflow.com/questions/10127284/overlay-imshow-plots-in-matplotlib
 
 
-import copy
-distancem2=copy.copy(distancem)
-
-contact_map = distancem >15    
-contact_map2 = distancem2 >10    # Example data, we'll use here a matrix of MI
 
 # generate the colors for your colormap
-color1 = colorConverter.to_rgba('white') # I don't know why this doesn't work..!
-color2 = colorConverter.to_rgba('black')
+color1 = colorConverter.to_rgba('black') # I don't know why this doesn't work..!
+color2 = colorConverter.to_rgba('white')
 
 # make the colormaps
 cmap1 = mpl.colors.LinearSegmentedColormap.from_list('my_cmap',['red','yellow'],256) #colors[0] at val=0 and colors[1] at val=1. The last mumber is the rgb quantization
@@ -62,7 +76,8 @@ cmap2._init() # create the _lut array, with rgba values
 alphas = (np.linspace(1, 0, cmap2.N+3)) # the alphas indicate the transparency
 cmap2._lut[:,-1] = alphas
 
-img2 = plt.imshow(np.transpose(contact_map), interpolation='nearest', cmap=cmap1) # Instead of this one we can use one of the already existing color maps too
-img3 = plt.imshow(np.transpose(contact_map2), interpolation='nearest', cmap=cmap2)
+# img2 = plt.imshow(np.transpose(contact_map), interpolation='nearest', cmap=cmap1)
+img2 = plt.imshow(contact_map, cmap=cmap1) # Instead of this one we can use one of the already existing color maps too
+img3 = plt.imshow(mi_mat2,   cmap=cmap2)
 
 plt.show()
